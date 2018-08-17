@@ -1,0 +1,35 @@
+
+type Te
+    x :: Float64
+    y :: Float64
+end
+
+P = Te(0,0) #  means x=0, y=0
+P.x 
+0
+P.y
+0
+===============
+if we define a variable 
+a = 2.3
+and we want to change it  from within a function we must use
+the word global:
+
+function t()
+ global a
+ a = a^2
+end
+
+after runnig t() the value of a would have changed
+
+
+
+
+
+
+
+
+
+
+
+
