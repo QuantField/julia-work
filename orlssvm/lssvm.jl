@@ -1,4 +1,4 @@
-type lssvm
+struct  lssvm
    
    # parameters for RBF kernel
    sigma :: Float64 ;

@@ -129,9 +129,14 @@ function summary(self::tols)
     println("BIC Criterion        $bic         Kurtosis:           ?")
     println("========================================================================================")
 end
-
+ self.ncoef / self.nobs)
+    bic = -2loglike / self.nobs + (self
 function linreg{T<:Number}(X::StridedVecOrMat{T}, y::Vector{T})
-    hcat(ones(T, size(X,1)), X)\y
-end
+    h self.ncoef / self.nobs)
+    bic = -2loglike / self.nobs + (selfcat(ones(T, size(X,1)), X)\y
+end self.ncoef / self.nobs)
+    bic = -2loglike / self.nobs + (self
+#------------------------ Linear----#------------------------ Linear-------------------------------------           
+---------------------------------           
 
 end

@@ -1,6 +1,6 @@
 
-workspace(); # clear
-cd("C:\\KS_temp\\julCode\\");
+#workspace(); # clear
+#cd("C:\\KS_temp\\julCode\\");
 include("lssvm.jl");
 
 #--------------- Kaggle set 
