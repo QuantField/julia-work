@@ -13,17 +13,14 @@ mutable struct linear <: Kernel
 		self.name = "Linear"
         
         self.evaluate = 
-        function (x1:: Array{Float64,}, x2:: Array{Float64,})  
-        	evaluate(self, x1:: Array{Float64,2}, x2:: Array{Float64,2})    
+        function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
+        	K= x2*x1'   
         end 
 
-		self
-	end
+        self
+    end
 end
 
-function evaluate(ker::linear, x1:: Array{Float64,}, x2:: Array{Float64,}) 
-	 return x2*x1'
-end
 
 #------------------------ Polynomia ------------------------------------        
 mutable struct polynomial <: Kernel	
@@ -41,16 +38,12 @@ mutable struct polynomial <: Kernel
 		self.offset = offset
         
         self.evaluate = 
-        function (x1:: Array{Float64,}, x2:: Array{Float64,})  
-        	evaluate(self, x1:: Array{Float64,2}, x2:: Array{Float64,2})    
+        function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
+        	K =  (x2*x1' .+ self.offset).^self.order    
         end 
 
 		self
 	end
-end
-
-function evaluate(ker::polynomial, x1:: Array{Float64,2}, x2:: Array{Float64,2}) 
-	 return   (x2*x1' .+ ker.offset).^ker.order
 end
 
 #------------------------ RBF-------------------------------------     
@@ -68,17 +61,13 @@ mutable struct rbf <: Kernel
         
         self.evaluate = 
         function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
-        	evaluate(self, x1:: Array{Float64,2}, x2:: Array{Float64,2})    
+             K = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
+                 ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2';        
+             K = exp.(-K/(self.width^2))
         end 
 
 		self
 	end
-end
-
-function evaluate(ker::rbf, x1:: Array{Float64,2}, x2:: Array{Float64,2}) 
-	 K = sum(x1.^2,dims=2)*ones(1,size(x2,1))+ones(size(x1,1),1)*sum(x2.^2,dims=2)'-2*x1*x2';		 
-     K = exp.(-K/(ker.width^2))
-     return K   
 end
 
 #------------------------ Demo ------------------------------
