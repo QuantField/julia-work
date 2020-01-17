@@ -1,5 +1,4 @@
-include("/home/kamel/myCode/julia-work/orlssvm/kernels.jl")
-# ---------------- internal constructor
+
 struct comp 
     x::Float64
     y::Float64
