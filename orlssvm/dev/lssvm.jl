@@ -1,8 +1,8 @@
 include("kernels.jl")
 
-struct  lssvm
+mutable struct  lssvm
    
-    # regularisation parameter
+    kernel:: Kernel 
     mu    :: Float64    
     x     :: Array{Float64,2}  # multi dimensional array x[][]
     y     :: Array{Float64,1} # one dimension array y[]
@@ -15,8 +15,9 @@ struct  lssvm
  
    
     function lssvm(kernel::Kernel=rbf(), mu::Float64=0.1)
-       self = new()
+       self = new() 
        self.mu = mu
+       self.kernel = kernel
         
           
        self.train = 
@@ -38,8 +39,8 @@ function train(net::lssvm, x::Array{Float64,}, y:: Array{Float64,1})
     n = length(y)
     net.ntp = n
     net.x   = x # shallow copy
-    net.y   = y # shallow copy    
-    T = [net.kernel.evaluate(x,x) + mu*eye(n) ones(n,1); ones(1,n+1)]
+    net.y   = y # shallow copy   
+    T = [net.kernel.evaluate(x,x) + net.mu*Matrix{Float64}(I, n, n) ones(n,1); ones(1,n+1)]
     T[n+1,n+1] =0
     tar   = [y; 0]
     Sol   = T\tar
@@ -48,7 +49,7 @@ function train(net::lssvm, x::Array{Float64,}, y:: Array{Float64,1})
 end
 
 function predict(net::lssvm, xt:: Array{Float64, 2})
-    net.kernel.evaluate(net.x, xt)*self.alpha .+ self.bias
+    net.kernel.evaluate(net.x, xt)*net.alpha .+ net.bias
 end
 
 

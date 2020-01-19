@@ -81,14 +81,14 @@ mutable struct rbf <: Kernel
 end
 
 
-# a = rand(6,3)
-# b = rand(6,3)
+# a = rand(3,2)
+# b = rand(3,2)
 
 # function check(ker::Kernel, x, y)
 #     K = ker.evaluate(x,y)
 # end
 
-# ker1 = linear()
+# ker1 = rbf()
 
 # v = check(ker1, a, b)
 # println(v)
