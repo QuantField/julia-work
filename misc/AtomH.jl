@@ -10,12 +10,12 @@ immutable radWaveFunc
 end	
 
 
-/**
+#(
  *
  * solves Shrodinger equation for Hydrogenoids, Z>1 including Hydrogen Z=1
  *
  *
- */
+ )#
 # a = collect(linspace(0.,1.,101));
 type AtomH
 	N    :: Int
