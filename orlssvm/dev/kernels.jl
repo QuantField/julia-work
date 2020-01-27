@@ -5,104 +5,60 @@ abstract type Kernel end
 
 
 #------------------------ Linear-------------------------------------           
-mutable struct linear <: Kernel
-	
-	name :: String 
-	evaluate :: Function
-
-	function linear()
-		
-		self = new()
-		
-		self.name = "Linear"
-        
-        self.evaluate = 
-        function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
-        	K= x2*x1'   
-        end 
-
-        self
-    end
+mutable struct linear <: Kernel     
+    name :: String 
+    linear() = new("Linear")    
 end
 
+function evaluate(net::linear, x1:: Array{Float64,2}, x2:: Array{Float64,2})  
+    K= x2*x1'   
+end 
+ 
 
 #------------------------ Polynomia ------------------------------------        
-mutable struct polynomial <: Kernel	
-	name::String 
-	order::Float64
-	offset::Float64
-
-	evaluate::Function
-
-	function polynomial(order::Float64, offset::Float64=1.)
-		
-		self = new()			
-		self.name = "Polynomial"
-		self.order = order
-		self.offset = offset
-        
-        self.evaluate = 
-        function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
-        	K =  (x2*x1' .+ self.offset).^self.order    
-        end 
-
-		self
-	end
+mutable struct polynomial <: Kernel 
+    name::String 
+    order::Float64
+    offset::Float64
+    polynomial(order::Float64=2., offset::Float64=1.) = new("Polynomial",order, offset)
 end
+
+function evaluate(net::polynomial, x1:: Array{Float64,2}, x2:: Array{Float64,2})  
+    K =  (x2*x1' .+ net.offset).^net.order    
+end 
+
+
 
 #------------------------ RBF-------------------------------------     
-mutable struct rbf <: Kernel	
-	name::String 
-	width::Float64
-	
-	evaluate::Function
-    generate_std_width::Function
-
-	function rbf(width::Float64=1.)
-		
-		self = new()			
-		self.name = "RBF"
-		self.width = width		
-        
-        self.evaluate = 
-        function (x1:: Array{Float64,2}, x2:: Array{Float64,2})  
-             K = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
-                 ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2';        
-             K = exp.(-K/(self.width^2))
-        end 
-
-        self.generate_std_width = 
-        function (x::Array{Float64,2})
-            norm(std(x,dims=1))
-        end
-
-		self
-	end
+mutable struct rbf <: Kernel    
+    name::String 
+    width::Float64
+    rbf(width::Float64=1.)  = new("RBF", width)
 end
+
+function evaluate(net::rbf, x1:: Array{Float64,2}, x2:: Array{Float64,2})  
+     K = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
+         ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2';        
+     K = exp.(-K/(net.width^2))
+end 
+
+function set_std_width(net::rbf, x::Array{Float64,2})
+    net.width = norm(std(x,dims=1))
+end
+
+ 
+
 
 
 # a = rand(3,2)
 # b = rand(3,2)
 
-# function check(ker::Kernel, x, y)
-#     K = ker.evaluate(x,y)
-# end
-
-# ker1 = rbf()
-
-# v = check(ker1, a, b)
-# println(v)
-
-#------------------------ Demo ------------------------------
-# ker1 = linear()
-# ker2 = polynomial(2., 0.1)
-# ker3 = rbf()
-
-# a = rand(6000,3)
-# b = rand(6000,3)  
-
-# for r in [ker1, ker2, ker3]
-# 	println(r.name)
-# 	@time r.evaluate(a,b)
-# end
-
+# v = evaluate(linear(),a,b)
+# display("text/plain",v)
+# println()
+# v = evaluate(polynomial(),a,b)
+# display("text/plain",v)
+# println()
+# v = evaluate(rbf(),a,b)
+# display("text/plain",v)
+# println()

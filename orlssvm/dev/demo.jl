@@ -8,22 +8,22 @@ x = data[:,2:end]
 
 net = lssvm()
 println("Training...")
-@time net.train(x, y)
-yhat = net.predict(x)
+@time train(net,x, y)
+yhat = predict(net, x)
 println("Training Error      = ", mean(sign.(yhat).!=sign.(y)))          
-println("PRESS (Statistic)   = ", net.press(x,y))
+println("PRESS (Statistic)   = ", press(net, x,y))
 println("Leave One Out Error = ", loo_error(net,x,y))
 
 reg_vals =  exp10.(-5:0.1:2)
 
-best_mu, best_press = net.optimal_regularisation(x, y, reg_vals)
+best_mu, best_press = optimal_regularisation(net, x, y, reg_vals)
 
 println("\nUsing best regularisation parameter:")
 net.mu = best_mu
 println("Training...")
-@time net.train(x, y)
-yhat = net.predict(x)
+@time train(net, x, y)
+yhat = predict(net, x)
 println("Training Error      = ", mean(sign.(yhat).!=sign.(y)))          
-println("PRESS (Statistic)   = ", net.press(x,y))
+println("PRESS (Statistic)   = ", press(net, x,y))
 println("Leave One Out Error = ", loo_error(net,x,y))
 
