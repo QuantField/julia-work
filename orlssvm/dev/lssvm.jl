@@ -4,6 +4,7 @@ include("kernels.jl")
 
 
 reg_vals =  exp10.(-3:0.1:2)
+width_vals = exp10.(-2:0.1:1)
 
 function _eye(n::Int)  
    Matrix{Float64}(I,n,n) 
@@ -56,14 +57,14 @@ function loo_error(net::lssvm, x::Array{Float64, 2}, y::Vector{Float64} )
     mean(err)
 end   
 
-function optimal_regularisation(net::lssvm, x::Array{Float64, 2}, 
-                                y::Vector{Float64}, mu_vals )     
+function optimal_regularisation(net::lssvm, x::Array{Float64, 2},  y::Vector{Float64},
+                                mu_vals::Vector{Float64}=reg_vals )     
     lambda, V = eigen(evaluate(net.kernel, x,x))
     Vt_y   = V'*y
     Vt_sqr = V'.^2
     xi     = sum(V, dims=1)'   
     xi2    = xi.^2
-    PRESS = []
+    PRESS = Float64[]
     for mu in mu_vals
       u     = xi./(lambda .+ mu)
       g     = lambda./(lambda .+ mu)
@@ -76,7 +77,65 @@ function optimal_regularisation(net::lssvm, x::Array{Float64, 2},
       push!(PRESS, _press)
       @printf("Mu = %4.6f  PRESS = %f\n", mu, _press);     
     end
-    ind = argmin(PRESS)
-    mu_vals[ind], PRESS[ind]  
+    press, ind = findmin(PRESS)
+    mu_vals[ind], press  
 end        
 
+
+# function opt_rbf_regularisation(net::lssvm, x::Array{Float64, 2},  y::Vector{Float64},
+#                                 mu_vals::Vector{Float64}=reg_vals, 
+#                                 width_range::Vector{64}=zeros(0) )   
+    
+#     ker  = rbf()
+#     if length(width_range)==0
+#       rbf_width_values = generate_std_width(ker, x, width_vals)
+#     else 
+#       rbf_width_values = width_range
+#     end
+
+
+#         Sig = this.initialRBFWidh()*10.^[-2:.05:2]; 
+#     Params = zeros(length(Sig),2);
+    
+#     PRESS = zeros(size(Mu));
+#     x1 = this.x;
+#     y  = this.y;               
+#     K0 = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
+#          ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2'
+#     OvPress = Inf;
+#     bestSigma = 0;
+#     bestMu  = 0;
+#     for sigma in rbf_width_values  
+#       lambda, V = eig(exp(-K0/(sigma^2)));
+#       Vt_y   = V'*y;
+#       Vt_sqr = V'.^2;
+#       xi     = sum(V,1)';   
+#       xi2    = xi.^2;   
+#       press = Inf;      
+#       for i in 1:length(Mu)   
+#         u     = xi./(lambda+Mu[i]);
+#         g     = lambda./(lambda+Mu[i]);
+#         sm    = -sum(xi2./(lambda+Mu[i]));            
+#         theta = Vt_y./(lambda+Mu[i])-(-sum(u.*Vt_y)/sm)*u;                  
+#         h     = Vt_sqr'*g + (V*(u.*lambda)-1).*(V*u)/sm;                
+#         f     = V*(lambda.*theta) + -sum(u.*Vt_y)/sm;
+#         loo_resid = (y - f)./(1-h);       
+#         tmp = sum(loo_resid.^2);  
+#                 if (tmp<press)
+#                    press = tmp;
+#                    mu    = Mu[i];
+#                 end          
+#         end
+#       @printf("Sigma = %4.6f  mu = %4.6f   PRESS = %f\n",Sig[p], mu, press);
+#       if (press<OvPress)
+#                 OvPress = press;
+#                 bestSigma = Sig[p];
+#                 bestMu    = mu;
+#             end       
+#     end 
+#     @printf("\nSigma = %f   mu = %f   PRESS = %f \n",bestSigma,bestMu,  OvPress);
+#     _lsvm.setRBFWidth(bestSigma);
+#     _lsvm.setRegParam(bestMu);
+#     println("Trainin with best parameters");
+#     _lsvm.train(this.x, this.y);
+#     return _lsvm;

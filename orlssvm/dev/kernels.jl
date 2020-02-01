@@ -42,15 +42,29 @@ function evaluate(net::rbf, x1:: Array{Float64,2}, x2:: Array{Float64,2})
      K = exp.(-K/(net.width^2))
 end 
 
-function set_std_width(net::rbf, x::Array{Float64,2})
-    net.width = norm(std(x,dims=1))
+"""
+  Generates scaled width for a given dataset. It is the norm of the standard
+  deviation across all dimension. if a vector (range) is added in the input argument
+  it generate this same range but multiplied by the norm of the standard deviation
+
+"""
+function generate_std_width(ker::rbf, x::Array{Float64,2}, range::Vector{Float64}=zeros(0))
+    if length(range)==0 
+      norm(std(x,dims=1))
+    else 
+      norm(std(x,dims=1))*range  
+    end
 end
 
  
 
 
 
-# a = rand(3,2)
+#a = rand(3,2)
+## println(generate_std_width(a))
+## println(generate_std_width(a, exp10.(-2:.1:2) ))
+
+
 # b = rand(3,2)
 
 # v = evaluate(linear(),a,b)
