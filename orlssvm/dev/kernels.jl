@@ -28,7 +28,6 @@ function evaluate(net::polynomial, x1:: Array{Float64,2}, x2:: Array{Float64,2})
 end 
 
 
-
 #------------------------ RBF-------------------------------------     
 mutable struct rbf <: Kernel    
     name::String 
@@ -36,10 +35,19 @@ mutable struct rbf <: Kernel
     rbf(width::Float64=1.)  = new("RBF", width)
 end
 
+"""
+  Calculate the matrix of distance squared of each data point from all the others, usually
+  used with rbf kernel, but doesn't depend on kernel parameters. Added net::Kernel for 
+  consistency only. 
+"""
+function _distance(net::Kernel , x1:: Array{Float64,2}, x2:: Array{Float64,2})
+    dist = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
+           ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2'    
+end 
+
+
 function evaluate(net::rbf, x1:: Array{Float64,2}, x2:: Array{Float64,2})  
-     K = sum(x1.^2, dims=2) * ones(1,size(x2,1)) +
-         ones(size(x1,1),1) * sum(x2.^2,dims=2)' - 2*x1*x2';        
-     K = exp.(-K/(net.width^2))
+     K = exp.(-_distance(net,x1,x2)/(net.width^2))
 end 
 
 """
@@ -57,13 +65,9 @@ function generate_std_width(ker::rbf, x::Array{Float64,2}, range::Vector{Float64
 end
 
  
-
-
-
 #a = rand(3,2)
 ## println(generate_std_width(a))
 ## println(generate_std_width(a, exp10.(-2:.1:2) ))
-
 
 # b = rand(3,2)
 
